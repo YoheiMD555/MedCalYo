@@ -26,29 +26,46 @@
         }
 
         function loadSheetsData() {
-            gapi.client.sheets.spreadsheets.values.get({
+            gapi.client.sheets.spreadsheets.get({
                 spreadsheetId: '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc',
-                range: 'Sheet1!A1:A100', // Adjust range as necessary
             }).then(function (response) {
-                var range = response.result;
-                if (range.values.length > 0) {
-                    var diseaseTypes = range.values.map(row => row[0]);
-                    populateDiseaseTypes(diseaseTypes);
+                var sheets = response.result.sheets;
+                if (sheets.length > 0) {
+                    var sheetPromises = sheets.map(sheet => {
+                        var sheetName = sheet.properties.title;
+                        return gapi.client.sheets.spreadsheets.values.get({
+                            spreadsheetId: '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc',
+                            range: `${sheetName}!A1:A100`, // Adjust range as necessary
+                        }).then(response => {
+                            return {
+                                sheetName: sheetName,
+                                values: response.result.values
+                            };
+                        });
+                    });
+
+                    Promise.all(sheetPromises).then(allSheetsData => {
+                        populateDiseaseTypes(allSheetsData);
+                    }).catch(error => {
+                        console.error('Error fetching sheet data: ' + error);
+                    });
                 } else {
-                    console.log('No data found.');
+                    console.log('No sheets found.');
                 }
             }, function (response) {
                 console.error('Error: ' + response.result.error.message);
             });
         }
 
-        function populateDiseaseTypes(diseaseTypes) {
+        function populateDiseaseTypes(allSheetsData) {
             const diseaseSelect = document.getElementById('disease');
-            diseaseTypes.forEach(function(disease) {
-                let option = document.createElement('option');
-                option.text = disease;
-                option.value = disease;
-                diseaseSelect.add(option);
+            allSheetsData.forEach(sheetData => {
+                sheetData.values.forEach(row => {
+                    let option = document.createElement('option');
+                    option.text = row[0];
+                    option.value = row[0];
+                    diseaseSelect.add(option);
+                });
             });
         }
 
