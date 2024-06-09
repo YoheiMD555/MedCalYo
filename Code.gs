@@ -7,7 +7,8 @@ function doGet() {
 
 // Fetches names of all tabs in the spreadsheet
 function getDiseaseTypes() {
-    var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+    var spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc'; // 指定されたスプレッドシートID
+    var sheets = SpreadsheetApp.openById(spreadsheetId).getSheets();
     return sheets.map(sheet => sheet.getName());
 }
 
@@ -44,7 +45,8 @@ function calculateAgeDependentDosage(age) {
 
 // Main function to calculate dosages based on the disease type, patient weight, and age
 function calculateDosage(diseaseType, weight, age) {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(diseaseType);
+    var spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc'; // 指定されたスプレッドシートID
+    var sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(diseaseType);
     if (!sheet) {
         console.log("Sheet not found");
         return [];
