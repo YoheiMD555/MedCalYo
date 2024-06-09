@@ -1,14 +1,11 @@
-const CACHE_NAME = 'dosage-calculator-cache-v1';
+const CACHE_NAME = 'PediMed-cache-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/service-worker.js',
-    '/styles.css', // 必要に応じて他のCSSファイルを追加
-    '/script.js',  // 必要に応じて他のJavaScriptファイルを追加
-    '/images/icon-192x192.png',
-    '/images/icon-512x512.png',
-    // さらに他の必要なファイルを追加
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/service-worker.js',
+  '/assets/icons/PediMed_logo_trimmed.png'
+  // 必要に応じて他のファイルを追加
 ];
 
 self.addEventListener('install', event => {
