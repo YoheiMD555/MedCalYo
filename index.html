@@ -3,108 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
     <title>PediMed</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/PediMed_logo_trimmed.png">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/PediMed_logo_trimmed.png">
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script>
-        function handleClientLoad() {
-            gapi.load('client:auth2', initClient);
-        }
-
-        function initClient() {
-            gapi.client.init({
-                apiKey: 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no',
-                clientId: '859869026849-b0sju6pmt5jkq029a3ln0u7ue1cpbbm1.apps.googleusercontent.com',
-                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-                scope: "https://www.googleapis.com/auth/spreadsheets.readonly"
-            }).then(function () {
-                gapi.auth2.getAuthInstance().signIn().then(loadSheetsData);
-            }).catch(function (error) {
-                console.error('Error during gapi client initialization: ', error);
-            });
-        }
-
-        function loadSheetsData() {
-            gapi.client.sheets.spreadsheets.get({
-                spreadsheetId: '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc',
-            }).then(function (response) {
-                var sheets = response.result.sheets;
-                if (sheets.length > 0) {
-                    var sheetPromises = sheets.map(sheet => {
-                        var sheetName = sheet.properties.title;
-                        return gapi.client.sheets.spreadsheets.values.get({
-                            spreadsheetId: '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc',
-                            range: `${sheetName}!A1:A100`,
-                        }).then(response => {
-                            return {
-                                sheetName: sheetName,
-                                values: response.result.values
-                            };
-                        });
-                    });
-
-                    Promise.all(sheetPromises).then(allSheetsData => {
-                        populateDiseaseTypes(allSheetsData);
-                    }).catch(error => {
-                        console.error('Error fetching sheet data: ' + error);
-                    });
-                } else {
-                    console.log('No sheets found.');
-                }
-            }, function (response) {
-                console.error('Error: ' + response.result.error.message);
-            });
-        }
-
-        function populateDiseaseTypes(allSheetsData) {
-            const diseaseSelect = document.getElementById('disease');
-            allSheetsData.forEach(sheetData => {
-                sheetData.values.forEach(row => {
-                    let option = document.createElement('option');
-                    option.text = row[0];
-                    option.value = row[0];
-                    diseaseSelect.add(option);
-                });
-            });
-        }
-
-        function calculate() {
-            var diseaseType = document.getElementById('disease').value;
-            var weight = parseFloat(document.getElementById('weight').value);
-            var age = parseFloat(document.getElementById('age').value);
-            var calculateBtn = document.getElementById('calculateBtn');
-
-            // Change button appearance to indicate loading
-            calculateBtn.classList.add('loading');
-            calculateBtn.disabled = true;
-
-            // Perform your calculation here and show results
-            // For now, just resetting the button after a timeout to simulate async work
-            setTimeout(() => {
-                // Reset button appearance after calculation
-                calculateBtn.classList.remove('loading');
-                calculateBtn.disabled = false;
-            }, 2000);
-        }
-
-        function handleError(error) {
-            console.log('Error:', error);
-            document.getElementById('output').innerHTML = 'Error processing your request. Please try again.';
-        }
-
-        function openPDF() {
-            const pdfUrl = 'https://drive.google.com/file/d/1xUC_qdWAm623GdyfbArfuhuTnMuL8IuM/view?usp=sharing';
-            window.open(pdfUrl, '_blank');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            handleClientLoad();
-        });
-    </script>
     <style>
-        body {
+       body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
@@ -212,11 +116,59 @@
             background-color: #4CAF50;
         }
     </style>
+    <script async defer src="https://apis.google.com/js/api.js"
+        onload="this.onload=function(){};handleClientLoad()"
+        onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+    <script>
+        async function listSheetNames() {
+            let response;
+            try {
+                response = await gapi.client.sheets.spreadsheets.get({
+                    spreadsheetId: '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc',
+                });
+                const sheetNames = response.result.sheets.map(sheet => sheet.properties.title);
+                return sheetNames;
+            } catch (err) {
+                console.error("Error: " + err);
+                return [];
+            }
+        }
+
+        async function loadDiseaseTypes() {
+            const diseaseTypes = await listSheetNames();
+            const diseaseSelect = document.getElementById('disease');
+            diseaseTypes.forEach(function(disease) {
+                let option = document.createElement('option');
+                option.text = disease;
+                option.value = disease;
+                diseaseSelect.add(option);
+            });
+        }
+
+        function handleClientLoad() {
+            gapi.load('client:auth2', initClient);
+        }
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no',
+                clientId: '859869026849-b0sju6pmt5jkq029a3ln0u7ue1cpbbm1.apps.googleusercontent.com',
+                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                scope: "https://www.googleapis.com/auth/spreadsheets.readonly"
+            }).then(function () {
+                // Sign in and load the sheets data
+                gapi.auth2.getAuthInstance().signIn().then(loadDiseaseTypes);
+            }).catch(function(error) {
+                console.error("Error during gapi client initialization: ", error);
+            });
+        }
+    </script>
 </head>
 <body>
     <div id="app">
         <div class="content-wrapper">
-            <h1>PediMed</h1>
+            <h1>小児薬剤用量計算</h1>
             <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
             <form onsubmit="calculate(); return false;">
                 <label for="disease">Disease Type:</label>
@@ -231,5 +183,97 @@
             <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
         </div>
     </div>
+    <script>
+        function calculate() {
+            var diseaseType = document.getElementById('disease').value;
+            var weight = parseFloat(document.getElementById('weight').value);
+            var age = parseFloat(document.getElementById('age').value);
+            var calculateBtn = document.getElementById('calculateBtn');
+
+            // Change button appearance to indicate loading
+            calculateBtn.classList.add('loading');
+            calculateBtn.disabled = true;
+
+            // Simulating the calculateDosage function
+            setTimeout(function() {
+                showResults([{ drugName: diseaseType, description: 'Sample Description', dosage: '10 mg', memo: 'Sample Memo', imageUrl: '' }]);
+                // Reset button appearance after calculation
+                calculateBtn.classList.remove('loading');
+                calculateBtn.disabled = false;
+            }, 2000);
+
+            if (diseaseType === 'けいれん (ER対応)' || diseaseType === 'けいれん (病棟対応)') {
+                document.getElementById('floatingBtn').style.display = 'flex';
+            } else {
+                document.getElementById('floatingBtn').style.display = 'none';
+            }
+        }
+
+        function showResults(results) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';  // Clear previous results
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result-item';
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'drug-name';
+                nameDiv.innerHTML = result.drugName;
+                nameDiv.style.cursor = 'pointer'; // Indicate this is clickable
+
+                const detailsDiv = document.createElement('div');
+                detailsDiv.style.display = 'none'; // Initially hide the details
+
+                const descriptionDiv = document.createElement('div');
+                descriptionDiv.innerHTML = result.description;
+                descriptionDiv.style.fontWeight = 'bold'; // Make text bold
+
+                const memoDiv = document.createElement('div');
+                if (result.memo != null && result.memo.trim() !== '') {
+                    memoDiv.innerHTML = `備考: ${result.memo}`;
+                }
+
+                const image = document.createElement('img');
+                if (result.imageUrl != null && result.imageUrl.trim() !== '') {
+                    image.src = result.imageUrl;
+                    image.alt = 'Drug image for ' + result.drugName;
+                }
+
+                // Append details to the container, which can be hidden or shown
+                detailsDiv.appendChild(descriptionDiv);
+                const dosageDiv = document.createElement('div');
+                dosageDiv.innerHTML = `用量: ${result.dosage}`;
+                detailsDiv.appendChild(dosageDiv);
+                detailsDiv.appendChild(memoDiv);
+                detailsDiv.appendChild(image);
+
+                // Append name and details to the result div
+                resultDiv.appendChild(nameDiv);
+                resultDiv.appendChild(detailsDiv);
+
+                // Toggle functionality when name is clicked
+                nameDiv.addEventListener('click', function() {
+                    if (detailsDiv.style.display === 'none') {
+                        detailsDiv.style.display = 'block';
+                    } else {
+                        detailsDiv.style.display = 'none';
+                    }
+                });
+
+                // Append result div to the output container
+                outputDiv.appendChild(resultDiv);
+            });
+        }
+
+        function handleError(error) {
+            console.log('Error:', error);
+            document.getElementById('output').innerHTML = 'Error processing your request. Please try again.';
+        }
+
+        function openPDF() {
+            const pdfUrl = 'https://drive.google.com/file/d/1xUC_qdWAm623GdyfbArfuhuTnMuL8IuM/view?usp=sharing';
+            window.open(pdfUrl, '_blank');
+        }
+    </script>
 </body>
 </html>
