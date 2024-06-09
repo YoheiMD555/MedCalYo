@@ -1,0 +1,10 @@
+# ローカルリポジトリの`assets/icons`ディレクトリに移動
+cd path/to/your/repo/assets/icons
+
+# アイコンファイルをコピー
+cp path/to/downloaded/PediMed_logo_trimmed.png .
+
+# GitHubにプッシュ
+git add PediMed_logo_trimmed.png
+git commit -m "Add PediMed logo"
+git push origin main
