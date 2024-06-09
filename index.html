@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="jp">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
     <title>PediMed</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/PediMed_logo_trimmed.png">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/PediMed_logo_trimmed.png">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
     </script>
     <style>
         body {
@@ -120,20 +124,21 @@
 </head>
 <body>
     <div id="app">
-       <div class="content-wrapper">
-        <h1>小児薬剤用量計算</h1>
-        <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
-        <form onsubmit="calculate(); return false;">
-            <label for="disease">Disease Type:</label>
-            <select id="disease"></select>
-            <label for="weight">体重 (kg):</label>
-            <input id="weight" type="number" step="0.1" />
-            <label for="age">年齢 (years):</label>
-            <input id="age" type="number" step="0.1" />
-            <button id="calculateBtn" type="submit">計算</button>
-        </form>
-        <div id="output"></div>
-        <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
+        <div class="content-wrapper">
+            <h1>小児薬剤用量計算</h1>
+            <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
+            <form onsubmit="calculate(); return false;">
+                <label for="disease">Disease Type:</label>
+                <select id="disease"></select>
+                <label for="weight">体重 (kg):</label>
+                <input id="weight" type="number" step="0.1" />
+                <label for="age">年齢 (years):</label>
+                <input id="age" type="number" step="0.1" />
+                <button id="calculateBtn" type="submit">計算</button>
+            </form>
+            <div id="output"></div>
+            <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
+        </div>
     </div>
 
     <script>
@@ -155,20 +160,17 @@
             var age = parseFloat(document.getElementById('age').value);
             var calculateBtn = document.getElementById('calculateBtn');
 
-            // Change button appearance to indicate loading
             calculateBtn.classList.add('loading');
             calculateBtn.disabled = true;
 
             google.script.run
                 .withSuccessHandler(function(results) {
                     showResults(results);
-                    // Reset button appearance after calculation
                     calculateBtn.classList.remove('loading');
                     calculateBtn.disabled = false;
                 })
                 .withFailureHandler(function(error) {
                     handleError(error);
-                    // Reset button appearance after error
                     calculateBtn.classList.remove('loading');
                     calculateBtn.disabled = false;
                 })
@@ -182,10 +184,8 @@
         }
 
         function showResults(results) {
-            console.log(results);
-
             const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = '';  // Clear previous results
+            outputDiv.innerHTML = '';
             results.forEach(result => {
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'result-item';
@@ -193,14 +193,13 @@
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'drug-name';
                 nameDiv.innerHTML = result.drugName;
-                nameDiv.style.cursor = 'pointer'; // Indicate this is clickable
+                nameDiv.style.cursor = 'pointer';
 
                 const detailsDiv = document.createElement('div');
-                detailsDiv.style.display = 'none'; // Initially hide the details
+                detailsDiv.style.display = 'none';
 
                 const descriptionDiv = document.createElement('div');
                 if (result.isSFM3) {
-                    // Split the description by commas and add line breaks
                     descriptionDiv.innerHTML = result.description.split(', ').map(part => {
                         const [label, value] = part.split(': ');
                         return `<span class="bold-text">${label}:</span> <span style="color: red;">${value}</span>`;
@@ -208,7 +207,7 @@
                 } else {
                     descriptionDiv.innerHTML = result.description;
                 }
-                descriptionDiv.style.fontWeight = 'bold'; // Make text bold
+                descriptionDiv.style.fontWeight = 'bold';
 
                 const memoDiv = document.createElement('div');
                 if (result.memo != null && result.memo.trim() !== '') {
@@ -221,7 +220,6 @@
                     image.alt = 'Drug image for ' + result.drugName;
                 }
 
-                // Append details to the container, which can be hidden or shown
                 detailsDiv.appendChild(descriptionDiv);
                 if (!result.isSFM3) {
                     const dosageDiv = document.createElement('div');
@@ -231,11 +229,9 @@
                 detailsDiv.appendChild(memoDiv);
                 detailsDiv.appendChild(image);
 
-                // Append name and details to the result div
                 resultDiv.appendChild(nameDiv);
                 resultDiv.appendChild(detailsDiv);
 
-                // Toggle functionality when name is clicked
                 nameDiv.addEventListener('click', function() {
                     if (detailsDiv.style.display === 'none') {
                         detailsDiv.style.display = 'block';
@@ -244,7 +240,6 @@
                     }
                 });
 
-                // Append result div to the output container
                 outputDiv.appendChild(resultDiv);
             });
         }
