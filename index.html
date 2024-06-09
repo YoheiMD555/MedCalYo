@@ -15,12 +15,14 @@
 
         function initClient() {
             gapi.client.init({
-                apiKey: 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no',  // ここにAPIキーを設定
+                apiKey: 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no',
                 clientId: '859869026849-b0sju6pmt5jkq029a3ln0u7ue1cpbbm1.apps.googleusercontent.com',
                 discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
                 scope: "https://www.googleapis.com/auth/spreadsheets.readonly"
             }).then(function () {
                 gapi.auth2.getAuthInstance().signIn().then(loadSheetsData);
+            }).catch(function (error) {
+                console.error('Error during gapi client initialization: ', error);
             });
         }
 
