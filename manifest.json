@@ -1,20 +1,20 @@
 {
-  "name": "PediMed",
-  "short_name": "PediMed",
-  "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "description": "小児の薬剤用量の計算機",
-  "icons": [
-     {
-      "src": "/assets/icons/PediMed_logo_trimmed.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/assets/icons/PediMed_logo_trimmed.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    "name": "PediMed",
+    "short_name": "PediMed",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "description": "Pediatric Dosage Calculator",
+    "icons": [
+        {
+            "src": "assets/icons/PediMed_logo_trimmed.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/icons/PediMed_logo_trimmed.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }
