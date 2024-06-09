@@ -1,6 +1,6 @@
 // Serves the HTML file as a web app
 function doGet() {
-    return HtmlService.createHtmlOutputFromFile('Page')
+    return HtmlService.createHtmlOutputFromFile('index')
         .setTitle('用量計算機')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
