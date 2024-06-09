@@ -10,6 +10,10 @@ function getDiseaseTypes() {
     var spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc'; // 指定されたスプレッドシートID
     var sheets = SpreadsheetApp.openById(spreadsheetId).getSheets();
     return sheets.map(sheet => sheet.getName());
+}catch (error) {
+        console.error('Error retrieving sheets:', error.message);
+        return [];
+    }
 }
 
 function roundToSigFigs(num, sigFigs) {
