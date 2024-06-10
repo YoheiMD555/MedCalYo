@@ -1,5 +1,5 @@
 // SFM7 calculation function
-function calculateDosageForSFM7(weight) {
+export function calculateDosageForSFM7(weight) {
     const sheetId = '16eiIQ1LOAhvm-SOapAU4vVg9ALlTCaWeEiEk_fMYX5Y'; // Spreadsheet ID
     const dosageSheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
     const dosageData = dosageSheet.getRange("A2:C3").getValues();
