@@ -116,32 +116,24 @@
             background-color: #4CAF50;
         }
     </style>
-    <script>
-        async function loadDiseaseTypes() {
-            const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
-            const url = `https://spreadsheets.google.com/feeds/worksheets/${spreadsheetId}/public/full?alt=json`;
+     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const diseaseTypes = [
+                "けいれん (ER対応)",
+                "けいれん (病棟対応)",
+                "挿管場面",
+                "心停止時",
+                "アナフィラキシー"
+            ];
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                const sheets = data.feed.entry;
-                const sheetNames = sheets.map(sheet => sheet.title.$t);
-                
-                const diseaseSelect = document.getElementById('disease');
-                sheetNames.forEach(function(disease) {
-                    let option = document.createElement('option');
-                    option.text = disease;
-                    option.value = disease;
-                    diseaseSelect.add(option);
-                });
-            } catch (error) {
-                console.error('Error fetching the sheets:', error);
-            }
-        }
-
-        window.onload = function() {
-            loadDiseaseTypes();
-        };
+            const diseaseSelect = document.getElementById('disease');
+            diseaseTypes.forEach(function(disease) {
+                let option = document.createElement('option');
+                option.text = disease;
+                option.value = disease;
+                diseaseSelect.add(option);
+            });
+        });
 
         function calculate() {
             var diseaseType = document.getElementById('disease').value;
