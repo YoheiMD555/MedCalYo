@@ -116,7 +116,11 @@
             background-color: #4CAF50;
         }
     </style>
-     <script>
+       <script src="calculate.js"></script> <!-- 別ファイルの計算ロジックをインクルード -->
+    <script>
+        const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
+        const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
+
         document.addEventListener("DOMContentLoaded", function() {
             const diseaseTypes = [
                 "けいれん (ER対応)",
@@ -135,7 +139,19 @@
             });
         });
 
-        function calculate() {
+        async function fetchSheetData(sheetName) {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A2:P1000?key=${apiKey}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.values; // 取得したデータのvalues部分を返す
+            } catch (error) {
+                console.error('Error fetching the sheet data:', error);
+                return null;
+            }
+        }
+
+        async function calculate() {
             var diseaseType = document.getElementById('disease').value;
             var weight = parseFloat(document.getElementById('weight').value);
             var age = parseFloat(document.getElementById('age').value);
@@ -145,24 +161,24 @@
             calculateBtn.classList.add('loading');
             calculateBtn.disabled = true;
 
-            // Simulating the calculateDosage function
-            setTimeout(function() {
-                showResults([{ drugName: diseaseType, description: 'Sample Description', dosage: '10 mg', memo: 'Sample Memo', imageUrl: '' }]);
-                // Reset button appearance after calculation
-                calculateBtn.classList.remove('loading');
-                calculateBtn.disabled = false;
-            }, 2000);
-
-            if (diseaseType === 'けいれん (ER対応)' || diseaseType === 'けいれん (病棟対応)') {
-                document.getElementById('floatingBtn').style.display = 'flex';
+            // シート名に基づいてデータを取得
+            const sheetData = await fetchSheetData(diseaseType);
+            if (sheetData) {
+                const results = processSheetData(sheetData, weight, age);
+                showResults(results);
             } else {
-                document.getElementById('floatingBtn').style.display = 'none';
+                console.error('Failed to fetch sheet data');
             }
+
+            // Reset button appearance after calculation
+            calculateBtn.classList.remove('loading');
+            calculateBtn.disabled = false;
         }
 
         function showResults(results) {
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';  // Clear previous results
+
             results.forEach(result => {
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'result-item';
@@ -176,7 +192,14 @@
                 detailsDiv.style.display = 'none'; // Initially hide the details
 
                 const descriptionDiv = document.createElement('div');
-                descriptionDiv.innerHTML = result.description;
+                if (result.isSFM3) {
+                    descriptionDiv.innerHTML = result.description.split(', ').map(part => {
+                        const [label, value] = part.split(': ');
+                        return `<span class="bold-text">${label}:</span> <span style="color: red;">${value}</span>`;
+                    }).join('<br>');
+                } else {
+                    descriptionDiv.innerHTML = result.description;
+                }
                 descriptionDiv.style.fontWeight = 'bold'; // Make text bold
 
                 const memoDiv = document.createElement('div');
@@ -192,9 +215,11 @@
 
                 // Append details to the container, which can be hidden or shown
                 detailsDiv.appendChild(descriptionDiv);
-                const dosageDiv = document.createElement('div');
-                dosageDiv.innerHTML = `用量: ${result.dosage}`;
-                detailsDiv.appendChild(dosageDiv);
+                if (!result.isSFM3) {
+                    const dosageDiv = document.createElement('div');
+                    dosageDiv.innerHTML = `用量: ${result.dosage}`;
+                    detailsDiv.appendChild(dosageDiv);
+                }
                 detailsDiv.appendChild(memoDiv);
                 detailsDiv.appendChild(image);
 
@@ -214,11 +239,6 @@
                 // Append result div to the output container
                 outputDiv.appendChild(resultDiv);
             });
-        }
-
-        function handleError(error) {
-            console.log('Error:', error);
-            document.getElementById('output').innerHTML = 'Error processing your request. Please try again.';
         }
 
         function openPDF() {
