@@ -116,7 +116,7 @@
             background-color: #4CAF50;
         }
     </style>
-      <script type="module">
+    <script type="module">
         import { calculateDosage } from './calculate.js';
         const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
         const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
@@ -179,7 +179,7 @@
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';  // Clear previous results
 
-            results.forEach((result, rowIndex) => {
+            results.forEach((result) => {
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'result-item';
 
