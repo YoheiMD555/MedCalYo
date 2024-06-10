@@ -116,78 +116,33 @@
             background-color: #4CAF50;
         }
     </style>
-    <script async defer src="https://apis.google.com/js/api.js"
-        onload="this.onload=function(){};handleClientLoad()"
-        onreadystatechange="if (this.readyState === 'complete') this.onload()">
-    </script>
     <script>
-        async function listSheetNames() {
-            let response;
+        async function loadDiseaseTypes() {
+            const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
+            const url = `https://spreadsheets.google.com/feeds/worksheets/${spreadsheetId}/public/full?alt=json`;
+
             try {
-                response = await gapi.client.sheets.spreadsheets.get({
-                    spreadsheetId: '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc',
+                const response = await fetch(url);
+                const data = await response.json();
+                const sheets = data.feed.entry;
+                const sheetNames = sheets.map(sheet => sheet.title.$t);
+                
+                const diseaseSelect = document.getElementById('disease');
+                sheetNames.forEach(function(disease) {
+                    let option = document.createElement('option');
+                    option.text = disease;
+                    option.value = disease;
+                    diseaseSelect.add(option);
                 });
-                const sheetNames = response.result.sheets.map(sheet => sheet.properties.title);
-                return sheetNames;
-            } catch (err) {
-                console.error("Error: " + err);
-                return [];
+            } catch (error) {
+                console.error('Error fetching the sheets:', error);
             }
         }
 
-        async function loadDiseaseTypes() {
-            const diseaseTypes = await listSheetNames();
-            const diseaseSelect = document.getElementById('disease');
-            diseaseTypes.forEach(function(disease) {
-                let option = document.createElement('option');
-                option.text = disease;
-                option.value = disease;
-                diseaseSelect.add(option);
-            });
-        }
+        window.onload = function() {
+            loadDiseaseTypes();
+        };
 
-        function handleClientLoad() {
-            gapi.load('client:auth2', initClient);
-        }
-
-        function initClient() {
-            gapi.client.init({
-                apiKey: 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no',
-                clientId: '859869026849-b0sju6pmt5jkq029a3ln0u7ue1cpbbm1.apps.googleusercontent.com',
-                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-                scope: "https://www.googleapis.com/auth/spreadsheets.readonly"
-            }).then(function () {
-                // Sign in and load the sheets data
-                gapi.auth2.getAuthInstance().signIn().then(loadDiseaseTypes);
-            }).catch(function(error) {
-                console.error("Error during gapi client initialization: ", error);
-            });
-        }
-    </script>
-</head>
-<body>
-    <div id="app">
-        <div class="content-wrapper">
-            <h1>小児薬剤用量計算</h1>
-            <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
-            <form onsubmit="calculate(); return false;">
-                <label for="disease">Disease Type:</label>
-                <select id="disease"></select>
-                <label for="weight">体重 (kg):</label>
-                <input id="weight" type="number" step="0.1" />
-                <label for="age">年齢 (years):</label>
-                <input id="age" type="number" step="0.1" />
-                <button id="calculateBtn" type="submit">計算</button>
-            </form>
-            <div id="output"></div>
-            <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
-        </div>
-        <footer>
-            <p><a href="privacy.html">プライバシーポリシー</a></p>
-            <p><a href="terms.html">利用規約</a></p>
-        </footer>
-    </div>
-    <script>
         function calculate() {
             var diseaseType = document.getElementById('disease').value;
             var weight = parseFloat(document.getElementById('weight').value);
@@ -279,5 +234,28 @@
             window.open(pdfUrl, '_blank');
         }
     </script>
+</head>
+<body>
+    <div id="app">
+        <div class="content-wrapper">
+            <h1>小児薬剤用量計算</h1>
+            <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
+            <form onsubmit="calculate(); return false;">
+                <label for="disease">Disease Type:</label>
+                <select id="disease"></select>
+                <label for="weight">体重 (kg):</label>
+                <input id="weight" type="number" step="0.1" />
+                <label for="age">年齢 (years):</label>
+                <input id="age" type="number" step="0.1" />
+                <button id="calculateBtn" type="submit">計算</button>
+            </form>
+            <div id="output"></div>
+            <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
+        </div>
+        <footer>
+            <p><a href="privacy.html">プライバシーポリシー</a></p>
+            <p><a href="terms.html">利用規約</a></p>
+        </footer>
+    </div>
 </body>
 </html>
