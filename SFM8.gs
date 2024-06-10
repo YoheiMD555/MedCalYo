@@ -1,4 +1,4 @@
-function calculateDosageForSFM8(weight, row) {
+export function calculateDosageForSFM8(weight, row) {
     const dosagePerKg = parseFloat(row[7]);  // コラムHから用量を取得 (mg/kg)
     const maxDosage = parseFloat(row[9]);    // コラムJから最大用量を取得 (mg)
 
@@ -17,8 +17,7 @@ function calculateDosageForSFM8(weight, row) {
     };
 }
 
-
-function testCalculateDosageForSFM8() {
+export function testCalculateDosageForSFM8() {
     const row = [null, null, null, null, null, null, null, 0.01, null, 1];  // ダミーデータ: [,,, H (mg/kg), , , , J (mg)]
 
     const testCases = [
