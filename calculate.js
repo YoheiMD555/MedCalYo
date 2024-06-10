@@ -172,3 +172,5 @@ function calculateDosage(diseaseType, weight, age, data) {
         };
     });
 }
+
+export { calculateDosage };
