@@ -1,13 +1,13 @@
 // SFMファイルから関数をインポート
-import { calculateDosageForSFM2 } from './SFM2.gs';
-import { calculateDosageForSFM3 } from './SFM3.gs';
-import { calculateDosageForSFM4 } from './SFM4.gs';
-import { calculateDosageForSFM5 } from './SFM5.gs';
-import { calculateDosageForSFM6 } from './SFM6.gs';
-import { calculateDosageForSFM7 } from './SFM7.gs';
-import { calculateDosageForSFM8 } from './SFM8.gs';
-import { calculateDosageForSFM9 } from './SFM9.gs';
-import { calculateDosageForSFM10 } from './SFM10.gs';
+import { calculateDosageForSFM2 } from './SFM2.js';
+import { calculateDosageForSFM3 } from './SFM3.js';
+import { calculateDosageForSFM4 } from './SFM4.js';
+import { calculateDosageForSFM5 } from './SFM5.js';
+import { calculateDosageForSFM6 } from './SFM6.js';
+import { calculateDosageForSFM7 } from './SFM7.js';
+import { calculateDosageForSFM8 } from './SFM8.js';
+import { calculateDosageForSFM9 } from './SFM9.js';
+import { calculateDosageForSFM10 } from './SFM10.js';
 
 function roundToSigFigs(num, sigFigs) {
     if (num === 0) return 0;
@@ -172,5 +172,3 @@ function calculateDosage(diseaseType, weight, age, data) {
         };
     });
 }
-
-export { calculateDosage };
