@@ -1,5 +1,5 @@
 // SFM3 calculation function
-function calculateDosageForSFM3(weight) {
+export function calculateDosageForSFM3(weight) {
     const sheetId = '1rx2oDEms28Dpji01TiHoA5EXQpHnKq78ZF5BU6GktWk'; // SFM3のスプレッドシートID
     const sheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
     const data = sheet.getDataRange().getValues();
@@ -45,4 +45,3 @@ function calculateDosageForSFM3(weight) {
 
     return results;
 }
-
