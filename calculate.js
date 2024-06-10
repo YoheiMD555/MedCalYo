@@ -1,3 +1,14 @@
+// SFMファイルから関数をインポート
+import { calculateDosageForSFM2 } from './SFM2.gs';
+import { calculateDosageForSFM3 } from './SFM3.gs';
+import { calculateDosageForSFM4 } from './SFM4.gs';
+import { calculateDosageForSFM5 } from './SFM5.gs';
+import { calculateDosageForSFM6 } from './SFM6.gs';
+import { calculateDosageForSFM7 } from './SFM7.gs';
+import { calculateDosageForSFM8 } from './SFM8.gs';
+import { calculateDosageForSFM9 } from './SFM9.gs';
+import { calculateDosageForSFM10 } from './SFM10.gs';
+
 function roundToSigFigs(num, sigFigs) {
     if (num === 0) return 0;
     const mult = Math.pow(10, sigFigs - Math.floor(Math.log10(Math.abs(num))) - 1);
