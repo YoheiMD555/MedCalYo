@@ -116,16 +116,16 @@
             background-color: #4CAF50;
         }
     </style>
-   <script>
+    <script>
         async function loadDiseaseTypes() {
             const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
-            const url = `https://spreadsheets.google.com/feeds/list/${spreadsheetId}/od6/public/values?alt=json`;
+            const url = `https://spreadsheets.google.com/feeds/worksheets/${spreadsheetId}/public/full?alt=json`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                const entries = data.feed.entry;
-                const sheetNames = entries.map(entry => entry.gsx$sheetname.$t);
+                const sheets = data.feed.entry;
+                const sheetNames = sheets.map(sheet => sheet.title.$t);
                 
                 const diseaseSelect = document.getElementById('disease');
                 sheetNames.forEach(function(disease) {
