@@ -48,6 +48,8 @@ function binarySearchClosest(arr, target) {
     return (arr[left] - target) < (target - arr[right]) ? left : right;
 }
 
+export { calculateDosageForSFM2, binarySearchClosest };
+
 // テスト関数
 function testCalculateDosageForSFM2() {
     const testCases = [
