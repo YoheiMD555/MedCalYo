@@ -1,5 +1,5 @@
 // SFM4計算関数
-function calculateDosageForSFM4(weight) {
+export function calculateDosageForSFM4(weight) {
     const sheetId = '1z0Zb7r-BsrUWuLJLZ-aWHdj8xnIZpLAQcJpV-0lFYm8';  // スプレッドシートID
     const dosageSheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
     const dosageData = dosageSheet.getDataRange().getValues();
@@ -49,7 +49,7 @@ function binarySearchClosest(arr, target) {
 }
 
 // テスト関数
-function testCalculateDosageForSFM4() {
+export function testCalculateDosageForSFM4() {
     const testCases = [
         { weight: 5, expectedMedication: "2.0", expectedDiluent: "8.0" }, // 例: 正常系テストケース
         { weight: 10, expectedMedication: "4.0", expectedDiluent: "6.0" }, // 例: 正常系テストケース
