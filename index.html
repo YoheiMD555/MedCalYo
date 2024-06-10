@@ -116,11 +116,8 @@
             background-color: #4CAF50;
         }
     </style>
-       <script src="calculate.js"></script>
+      <script type="module" src="calculate.js"></script>
     <script>
-        const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
-        const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
-
         document.addEventListener("DOMContentLoaded", function() {
             const diseaseTypes = [
                 "けいれん (ER対応)",
@@ -139,18 +136,6 @@
             });
         });
 
-        async function fetchSheetData(sheetName) {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:Z1000?key=${apiKey}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                return data.values; // 取得したデータのvalues部分を返す
-            } catch (error) {
-                console.error('Error fetching the sheet data:', error);
-                return null;
-            }
-        }
-
         async function calculate() {
             var diseaseType = document.getElementById('disease').value;
             var weight = parseFloat(document.getElementById('weight').value);
@@ -161,14 +146,9 @@
             calculateBtn.classList.add('loading');
             calculateBtn.disabled = true;
 
-            // シート名に基づいてデータを取得
-            const sheetData = await fetchSheetData(diseaseType);
-            if (sheetData) {
-                const results = calculateDosage(diseaseType, weight, age, sheetData);
-                showResults(results);
-            } else {
-                console.error('Failed to fetch sheet data');
-            }
+            // calculateDosage関数を呼び出して結果を取得
+            const results = calculateDosage(diseaseType, weight, age);
+            showResults(results);
 
             // Reset button appearance after calculation
             calculateBtn.classList.remove('loading');
