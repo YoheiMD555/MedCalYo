@@ -6,7 +6,7 @@ import { calculateDosageForSFM6 } from './SFM6.js';
 import { calculateDosageForSFM7 } from './SFM7.js';
 import { calculateDosageForSFM8 } from './SFM8.js';
 import { calculateDosageForSFM9 } from './SFM9.js';
-import { calculateDosageForSFM10 } from './SFM10.js';
+import { calculateDosageForSFM10 } from './SFM10.js';  // 追加
 
 function roundToSigFigs(num, sigFigs) {
     if (num === 0) return 0;
@@ -102,8 +102,16 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                     let sfm9Results = await calculateDosageForSFM9(weight, row);
                     description = `<span style="color: red;">原液まま${sfm9Results.finalVolume} mL</span>を静脈投与`;
                 } else if (row[3] === 'SFM10') {
-                    let sfm10Results = await calculateDosageForSFM10(weight, row);
-                    description = `原液まま<span style="color: red;">${sfm10Results.medication} mL</span>を静脈投与`;
+                    let sfm10Results = calculateDosageForSFM10(weight, row);
+                    description = `原液まま<span style="color: red;">${sfm10Results.medication} μg</span>を静脈投与`;
+                    return {
+                        drugName: row[0],
+                        dosage: `${sfm10Results.medication} μg`, // SFM10の場合に単位を追加
+                        description: description,
+                        memo: row[14] || '',
+                        imageUrl: row[15] || '',
+                        isSFM3: false
+                    };
                 } else {
                     description = "未定義の投与形態です";
                 }
