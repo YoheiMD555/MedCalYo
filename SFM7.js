@@ -2,8 +2,9 @@ import { roundToSigFigs, fetchSheetData } from './calculate.js';
 
 export async function calculateDosageForSFM7(weight) {
     const spreadsheetId = '16eiIQ1LOAhvm-SOapAU4vVg9ALlTCaWeEiEk_fMYX5Y'; // スプレッドシートID
-    const range = 'Sheet1!A2:C3'; // 適切なシート名と範囲を指定してください
-    const dosageData = await fetchSheetData(spreadsheetId, range);
+    const sheetName = 'Sheet1'; // 適切なシート名を指定してください
+    const range = 'A2:C3'; // 適切な範囲を指定してください
+    const dosageData = await fetchSheetData(spreadsheetId, sheetName, range);
 
     if (!dosageData || dosageData.length < 2 || !dosageData[0] || !dosageData[1]) {
         console.error('No data found or data format is incorrect');
