@@ -2,7 +2,7 @@ import { roundToSigFigs } from './calculate.js';
 
 export async function calculateDosageForSFM7(weight) {
     const spreadsheetId = '16eiIQ1LOAhvm-SOapAU4vVg9ALlTCaWeEiEk_fMYX5Y'; // スプレッドシートID
-    const range = 'Sheet1!A2:C3'; // 適切なシート名と範囲を指定してください
+    const range = 'Sheet1!A2:L1000'; // 適切なシート名と範囲を指定してください
     const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
