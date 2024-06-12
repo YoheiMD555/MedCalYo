@@ -116,153 +116,154 @@
             background-color: #4CAF50;
         }
     </style>
-     <script type="module">
-        const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
-        const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
+    <script type="module">
+    const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
+    const spreadsheetId = '1qAYSdC0hQHgNAtIoboxUKOxNDpIaojCymfSsZ-V1dLc';
 
-        import { calculateDosage } from './calculate.js';
+    import { calculateDosage } from './calculate.js';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchSheetNames().then(diseaseTypes => {
-                const diseaseSelect = document.getElementById('disease');
-                diseaseTypes.forEach(function(disease) {
-                    let option = document.createElement('option');
-                    option.text = disease;
-                    option.value = disease;
-                    diseaseSelect.add(option);
-                });
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchSheetNames().then(diseaseTypes => {
+            const diseaseSelect = document.getElementById('disease');
+            diseaseTypes.forEach(function(disease) {
+                let option = document.createElement('option');
+                option.text = disease;
+                option.value = disease;
+                diseaseSelect.add(option);
             });
         });
+    });
 
-        async function fetchSheetNames() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                return data.sheets.map(sheet => sheet.properties.title);
-            } catch (error) {
-                console.error('Error fetching sheet names:', error);
-                return [];
-            }
+    async function fetchSheetNames() {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.sheets.map(sheet => sheet.properties.title);
+        } catch (error) {
+            console.error('Error fetching sheet names:', error);
+            return [];
+        }
+    }
+
+    async function fetchSheetData(sheetName) {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:Z1000?key=${apiKey}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.values;
+        } catch (error) {
+            console.error('Error fetching sheet data:', error);
+            return null;
+        }
+    }
+
+    window.calculate = async function() {
+        var diseaseType = document.getElementById('disease').value;
+        var weight = parseFloat(document.getElementById('weight').value);
+        var age = parseFloat(document.getElementById('age').value);
+        var calculateBtn = document.getElementById('calculateBtn');
+
+        // Change button appearance to indicate loading
+        calculateBtn.classList.add('loading');
+        calculateBtn.disabled = true;
+
+        // シート名に基づいてデータを取得
+        const sheetData = await fetchSheetData(diseaseType);
+        if (sheetData) {
+            const results = await calculateDosage(diseaseType, weight, age, sheetData);
+            showResults(results);
+        } else {
+            console.error('Failed to fetch sheet data');
         }
 
-        async function fetchSheetData(sheetName) {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:Z1000?key=${apiKey}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                return data.values;
-            } catch (error) {
-                console.error('Error fetching sheet data:', error);
-                return null;
-            }
+        // Reset button appearance after calculation
+        calculateBtn.classList.remove('loading');
+        calculateBtn.disabled = false;
+
+        if (diseaseType === 'けいれん (ER対応)' || diseaseType === 'けいれん (病棟対応)') {
+            document.getElementById('floatingBtn').style.display = 'flex';
+        } else {
+            document.getElementById('floatingBtn').style.display = 'none';
         }
+    }
 
-        window.calculate = async function() {
-            var diseaseType = document.getElementById('disease').value;
-            var weight = parseFloat(document.getElementById('weight').value);
-            var age = parseFloat(document.getElementById('age').value);
-            var calculateBtn = document.getElementById('calculateBtn');
+    function showResults(results) {
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';  // Clear previous results
+        results.forEach(result => {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result-item';
 
-            // Change button appearance to indicate loading
-            calculateBtn.classList.add('loading');
-            calculateBtn.disabled = true;
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'drug-name';
+            nameDiv.innerHTML = result.drugName;
+            nameDiv.style.cursor = 'pointer'; // Indicate this is clickable
 
-            // シート名に基づいてデータを取得
-            const sheetData = await fetchSheetData(diseaseType);
-            if (sheetData) {
-                const results = calculateDosage(diseaseType, weight, age, sheetData);
-                showResults(results);
+            const detailsDiv = document.createElement('div');
+            detailsDiv.style.display = 'none'; // Initially hide the details
+
+            const descriptionDiv = document.createElement('div');
+            if (result.isSFM3) {
+                descriptionDiv.innerHTML = result.description.split(', ').map(part => {
+                    const [label, value] = part.split(': ');
+                    return `<span class="bold-text">${label}:</span> <span style="color: red;">${value}</span>`;
+                }).join('<br>');
             } else {
-                console.error('Failed to fetch sheet data');
+                descriptionDiv.innerHTML = result.description;
+            }
+            descriptionDiv.style.fontWeight = 'bold'; // Make text bold
+
+            const memoDiv = document.createElement('div');
+            if (result.memo != null && result.memo.trim() !== '') {
+                memoDiv.innerHTML = `備考: ${result.memo}`;
             }
 
-            // Reset button appearance after calculation
-            calculateBtn.classList.remove('loading');
-            calculateBtn.disabled = false;
-
-            if (diseaseType === 'けいれん (ER対応)' || diseaseType === 'けいれん (病棟対応)') {
-                document.getElementById('floatingBtn').style.display = 'flex';
-            } else {
-                document.getElementById('floatingBtn').style.display = 'none';
+            const image = document.createElement('img');
+            if (result.imageUrl != null && result.imageUrl.trim() !== '') {
+                image.src = result.imageUrl;
+                image.alt = 'Drug image for ' + result.drugName;
             }
-        }
 
-        function showResults(results) {
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = '';  // Clear previous results
-            results.forEach(result => {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'result-item';
+            // Append details to the container, which can be hidden or shown
+            detailsDiv.appendChild(descriptionDiv);
+            if (!result.isSFM3) {
+                const dosageDiv = document.createElement('div');
+                dosageDiv.innerHTML = `用量: ${result.dosage}`;
+                detailsDiv.appendChild(dosageDiv);
+            }
+            detailsDiv.appendChild(memoDiv);
+            detailsDiv.appendChild(image);
 
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'drug-name';
-                nameDiv.innerHTML = result.drugName;
-                nameDiv.style.cursor = 'pointer'; // Indicate this is clickable
+            // Append name and details to the result div
+            resultDiv.appendChild(nameDiv);
+            resultDiv.appendChild(detailsDiv);
 
-                const detailsDiv = document.createElement('div');
-                detailsDiv.style.display = 'none'; // Initially hide the details
-
-                const descriptionDiv = document.createElement('div');
-                if (result.isSFM3) {
-                    descriptionDiv.innerHTML = result.description.split(', ').map(part => {
-                        const [label, value] = part.split(': ');
-                        return `<span class="bold-text">${label}:</span> <span style="color: red;">${value}</span>`;
-                    }).join('<br>');
+            // Toggle functionality when name is clicked
+            nameDiv.addEventListener('click', function() {
+                if (detailsDiv.style.display === 'none') {
+                    detailsDiv.style.display = 'block';
                 } else {
-                    descriptionDiv.innerHTML = result.description;
+                    detailsDiv.style.display = 'none';
                 }
-                descriptionDiv.style.fontWeight = 'bold'; // Make text bold
-
-                const memoDiv = document.createElement('div');
-                if (result.memo != null && result.memo.trim() !== '') {
-                    memoDiv.innerHTML = `備考: ${result.memo}`;
-                }
-
-                const image = document.createElement('img');
-                if (result.imageUrl != null && result.imageUrl.trim() !== '') {
-                    image.src = result.imageUrl;
-                    image.alt = 'Drug image for ' + result.drugName;
-                }
-
-                // Append details to the container, which can be hidden or shown
-                detailsDiv.appendChild(descriptionDiv);
-                if (!result.isSFM3) {
-                    const dosageDiv = document.createElement('div');
-                    dosageDiv.innerHTML = `用量: ${result.dosage}`;
-                    detailsDiv.appendChild(dosageDiv);
-                }
-                detailsDiv.appendChild(memoDiv);
-                detailsDiv.appendChild(image);
-
-                // Append name and details to the result div
-                resultDiv.appendChild(nameDiv);
-                resultDiv.appendChild(detailsDiv);
-
-                // Toggle functionality when name is clicked
-                nameDiv.addEventListener('click', function() {
-                    if (detailsDiv.style.display === 'none') {
-                        detailsDiv.style.display = 'block';
-                    } else {
-                        detailsDiv.style.display = 'none';
-                    }
-                });
-
-                // Append result div to the output container
-                outputDiv.appendChild(resultDiv);
             });
-        }
 
-        function openPDF() {
-            const pdfUrl = 'https://drive.google.com/file/d/1xUC_qdWAm623GdyfbArfuhuTnMuL8IuM/view?usp=sharing';
-            window.open(pdfUrl, '_blank');
-        }
+            // Append result div to the output container
+            outputDiv.appendChild(resultDiv);
+        });
+    }
 
-        document.getElementById('calculateForm').onsubmit = function(event) {
-            event.preventDefault();
-            window.calculate();
-        };
-    </script></head>
+    function openPDF() {
+        const pdfUrl = 'https://drive.google.com/file/d/1xUC_qdWAm623GdyfbArfuhuTnMuL8IuM/view?usp=sharing';
+        window.open(pdfUrl, '_blank');
+    }
+
+    document.getElementById('calculateForm').onsubmit = function(event) {
+        event.preventDefault();
+        window.calculate();
+    };
+</script>
+</head>
 <body>
     <div id="app">
         <div class="content-wrapper">
