@@ -14,18 +14,23 @@ export function roundToSigFigs(num, sigFigs) {
     return Math.round(num * mult) / mult;
 }
 
-export async function fetchSheetData(sheetId, sheetName) {
+export async function fetchSheetData(sheetId, range) {
     const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキー
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:Z1000?key=${apiKey}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
+        if (!data.values || data.values.length === 0) {
+            console.error('No data found');
+            return null;
+        }
         return data.values;
     } catch (error) {
         console.error('Error fetching sheet data:', error);
         return null;
     }
 }
+
 
 export function calculateAgeDependentDosage(age) {
     // 年齢に基づいて用量を決定
