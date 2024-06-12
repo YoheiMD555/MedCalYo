@@ -1,3 +1,5 @@
+import { roundToSigFigs } from './calculate.js';
+
 export function calculateDosageForSFM8(weight, row) {
     const dosagePerKg = parseFloat(row[7]);  // コラムHから用量を取得 (mg/kg)
     const maxDosage = parseFloat(row[9]);    // コラムJから最大用量を取得 (mg)
