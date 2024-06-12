@@ -1,3 +1,5 @@
+import { roundToSigFigs } from './calculate.js';
+
 export async function calculateDosageForSFM3(weight) {
     const spreadsheetId = '1rx2oDEms28Dpji01TiHoA5EXQpHnKq78ZF5BU6GktWk'; // SFM3のスプレッドシートID
     const range = 'Sheet1!A2:L1000'; // 適切なシート名と範囲を指定してください
