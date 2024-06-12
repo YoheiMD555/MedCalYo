@@ -1,4 +1,3 @@
-// SFM7計算関数
 import { roundToSigFigs } from './calculate.js';
 
 export async function calculateDosageForSFM7(weight) {
@@ -11,6 +10,9 @@ export async function calculateDosageForSFM7(weight) {
     try {
         const response = await fetch(url);
         const data = await response.json();
+        if (!data.values) {
+            throw new Error('No data found');
+        }
         const dosageData = data.values;
 
         let initialDose = parseFloat(dosageData[0][0]) * weight;
