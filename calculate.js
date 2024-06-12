@@ -24,6 +24,27 @@ function getDosage(row, weight, age) {
     }
 }
 
+export async function fetchSheetData(sheetId, sheetName) {
+    if (row[1] === 'weight') {
+    const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキー
+        return roundToSigFigs(row[7] * weight, 3); // Adjusting to 3 significant figures
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:Z1000?key=${apiKey}`;
+    } else if (row[1] === 'age') {
+    try {
+        return calculateAgeDependentDosage(age);
+        const response = await fetch(url);
+    } else {
+        const data = await response.json();
+        return '0';
+        return data.values;
+    } catch (error) {
+        console.error('Error fetching sheet data:', error);
+        return null;
+     }
+     }
+ }
+ }
+
 function calculateAgeDependentDosage(age) {
     // 年齢に基づいて用量を決定
     if (age < 1) {
