@@ -77,7 +77,7 @@ export async function calculateDosage(diseaseType, weight, age, data) {
             case 'diluted':
                 volume = roundToSigFigs(dosage * row[11], 1);
                 let diluentVolume = parseFloat(row[10]);
-                description = `<span style="color: red;">生食${diluentVolume}mL</spanに混ぜて、<span style="color: red;">${volume} mL</span>投与`;
+                description = `<span style="color: red;">生食${diluentVolume}mL</span>に混ぜて、<span style="color: red;">${volume} mL</span>投与`;
                 break;
             case 'special':
                 if (row[3] === 'SFM2') {
