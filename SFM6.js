@@ -1,4 +1,3 @@
-// SFM6計算関数
 import { roundToSigFigs } from './calculate.js';
 
 export async function calculateDosageForSFM6(weight) {
@@ -14,13 +13,13 @@ export async function calculateDosageForSFM6(weight) {
         const dosageData = data.values;
 
         // Extract the weights into a separate array for binary search
-        const weights = dosageData.slice(1).map(row => parseFloat(row[0])); // Skip header row
+        const weights = dosageData.map(row => parseFloat(row[0])); // No need to skip header as we already start from A2
         const index = binarySearchClosest(weights, weight);
 
         const result = {};
         if (index !== -1) {
-            result.medication = parseFloat(dosageData[index + 1][1]).toFixed(1);  // +1 to account for header row
-            result.diluent = parseFloat(dosageData[index + 1][2]).toFixed(1);
+            result.medication = parseFloat(dosageData[index][1]).toFixed(1);  // Adjust to get the correct row
+            result.diluent = parseFloat(dosageData[index][2]).toFixed(1);
         } else {
             result.medication = undefined;
             result.diluent = undefined;
