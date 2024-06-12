@@ -1,7 +1,7 @@
 // SFM6計算関数
 export async function calculateDosageForSFM6(weight) {
     const spreadsheetId = '1RoySfR7lXoxhfXsIcVLWHSTebN5dVnjPpYv-m0EQZuM';  // スプレッドシートID
-    const range = 'Sheet1!A1:Z1000'; // 適切なシート名と範囲を指定してください
+    const range = 'Sheet1!A2:Z1000'; // 適切なシート名と範囲を指定してください
     const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
