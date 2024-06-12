@@ -1,37 +1,28 @@
-import { roundToSigFigs } from './calculate.js';
+import { roundToSigFigs, fetchSheetData } from './calculate.js';
 
 export async function calculateDosageForSFM7(weight) {
     const spreadsheetId = '16eiIQ1LOAhvm-SOapAU4vVg9ALlTCaWeEiEk_fMYX5Y'; // スプレッドシートID
-    const range = 'Sheet1!A2:L1000'; // 適切なシート名と範囲を指定してください
-    const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
+    const range = 'Sheet1!A2:C3'; // 適切なシート名と範囲を指定してください
+    const dosageData = await fetchSheetData(spreadsheetId, range);
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (!data.values) {
-            throw new Error('No data found');
-        }
-        const dosageData = data.values;
-
-        let initialDose = parseFloat(dosageData[1][0]) * weight;
-        let continuousDose = parseFloat(dosageData[1][1]) * weight;
-        let maxDose = parseFloat(dosageData[1][2]) * weight;
-
-        return {
-            initialDose: initialDose.toFixed(1),
-            continuousDose: continuousDose.toFixed(1),
-            maxDose: maxDose.toFixed(1)
-        };
-    } catch (error) {
-        console.error('Error fetching data:', error);
+    if (!dosageData || dosageData.length < 2 || !dosageData[0] || !dosageData[1]) {
+        console.error('No data found or data format is incorrect');
         return {
             initialDose: undefined,
             continuousDose: undefined,
             maxDose: undefined
         };
     }
+
+    const initialDose = parseFloat(dosageData[0][0]) * weight;
+    const continuousDose = parseFloat(dosageData[0][1]) * weight;
+    const maxDose = parseFloat(dosageData[1][2]) * weight;
+
+    return {
+        initialDose: initialDose.toFixed(1),
+        continuousDose: continuousDose.toFixed(1),
+        maxDose: maxDose.toFixed(1)
+    };
 }
 
 // テスト関数
