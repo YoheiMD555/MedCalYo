@@ -39,8 +39,9 @@ function calculateAgeDependentDosage(age) {
     }
 }
 
+
 export async function calculateDosage(diseaseType, weight, age, data) {
-    return await Promise.all(data.map(async (row) => {
+    const results = await Promise.all(data.map(async (row) => {
         let dosage = getDosage(row, weight, age);
         let volume, description;
         let isSFM3 = false;
@@ -103,10 +104,10 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                     description = `<span style="color: red;">原液まま${sfm9Results.finalVolume} mL</span>を静脈投与`;
                 } else if (row[3] === 'SFM10') {
                     let sfm10Results = calculateDosageForSFM10(weight, row);
-                    description = `原液まま<span style="color: red;">${sfm10Results.medication} μg</span>を静脈投与`;
+                    description = `原液まま<span style="color: red;">${sfm10Results.medication} mL</span>を静脈投与`;
                     return {
                         drugName: row[0],
-                        dosage: `${sfm10Results.medication} μg`, // SFM10の場合に単位を追加
+                        dosage: `${sfm10Results.dosageInMicrograms} μg`, // SFM10の場合に単位を追加
                         description: description,
                         memo: row[14] || '',
                         imageUrl: row[15] || '',
@@ -130,4 +131,7 @@ export async function calculateDosage(diseaseType, weight, age, data) {
             isSFM3: isSFM3
         };
     }));
+
+    // Ensure results is always an array
+    return Array.isArray(results) ? results : [];
 }
