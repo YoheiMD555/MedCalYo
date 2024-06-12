@@ -268,18 +268,19 @@
         <div class="content-wrapper">
             <h1>小児薬剤用量計算</h1>
             <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
-            <form onsubmit="calculate(); return false;">
-                <label for="disease">Disease Type:</label>
-                <select id="disease"></select>
-                <label for="weight">体重 (kg):</label>
-                <input id="weight" type="number" step="0.1" />
-                <label for="age">年齢 (years):</label>
-                <input id="age" type="number" step="0.1" />
-                <button id="calculateBtn" type="submit">計算</button>
-            </form>
-            <div id="output"></div>
-            <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
-        </div>
+           <div class="note">＊使用に際しては、最終的な確認を必ず現場で行うこと</div>
+        <form id="calculateForm">
+            <label for="disease">Disease Type:</label>
+            <select id="disease"></select>
+            <label for="weight">体重 (kg):</label>
+            <input id="weight" type="number" step="0.1" required />
+            <label for="age">年齢 (years):</label>
+            <input id="age" type="number" step="0.1" required />
+            <button id="calculateBtn" type="submit">計算</button>
+        </form>
+        <div id="output"></div>
+        <button id="floatingBtn" class="floating-btn" style="display: none;" onclick="openPDF()">フローチャート</button>
+    </div>
         <footer>
             <p><a href="privacy.html">プライバシーポリシー</a></p>
             <p><a href="terms.html">利用規約</a></p>
