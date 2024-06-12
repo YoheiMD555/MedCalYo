@@ -14,38 +14,20 @@ export function roundToSigFigs(num, sigFigs) {
     return Math.round(num * mult) / mult;
 }
 
-function getDosage(row, weight, age) {
-    if (row[1] === 'weight') {
-        return roundToSigFigs(row[7] * weight, 3); // Adjusting to 3 significant figures
-    } else if (row[1] === 'age') {
-        return calculateAgeDependentDosage(age);
-    } else {
-        return '0';
-    }
-}
-
 export async function fetchSheetData(sheetId, sheetName) {
-    if (row[1] === 'weight') {
     const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキー
-        return roundToSigFigs(row[7] * weight, 3); // Adjusting to 3 significant figures
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:Z1000?key=${apiKey}`;
-    } else if (row[1] === 'age') {
     try {
-        return calculateAgeDependentDosage(age);
         const response = await fetch(url);
-    } else {
         const data = await response.json();
-        return '0';
         return data.values;
     } catch (error) {
         console.error('Error fetching sheet data:', error);
         return null;
-     }
-     }
- }
- }
+    }
+}
 
-function calculateAgeDependentDosage(age) {
+export function calculateAgeDependentDosage(age) {
     // 年齢に基づいて用量を決定
     if (age < 1) {
         return 2.5;  // 1歳未満
@@ -57,6 +39,16 @@ function calculateAgeDependentDosage(age) {
         return 10;   // 10歳から18歳未満
     } else {
         return '対応する用量が見つかりませんでした。';  // 18歳以上は対象外
+    }
+}
+
+export function getDosage(row, weight, age) {
+    if (row[1] === 'weight') {
+        return roundToSigFigs(row[7] * weight, 3); // Adjusting to 3 significant figures
+    } else if (row[1] === 'age') {
+        return calculateAgeDependentDosage(age);
+    } else {
+        return '0';
     }
 }
 
@@ -85,18 +77,18 @@ export async function calculateDosage(diseaseType, weight, age, data) {
             case 'diluted':
                 volume = roundToSigFigs(dosage * row[11], 1);
                 let diluentVolume = parseFloat(row[10]);
-                description = `<span style="color: red;">生食${diluentVolume}mL</span>に混ぜて、<span style="color: red;">${volume} mL</span>投与`;
+                description = `<span style="color: red;">生食${diluentVolume}mL</spanに混ぜて、<span style="color: red;">${volume} mL</span>投与`;
                 break;
             case 'special':
                 if (row[3] === 'SFM2') {
-                    let sfmResults = calculateDosageForSFM2(weight);
+                    let sfmResults = await calculateDosageForSFM2(weight);
                     if (sfmResults.medication !== undefined && sfmResults.diluent !== undefined) {
                         description = `<span style="color: red;">薬剤${sfmResults.medication}mL</span>と<span style="color: red;">生食${sfmResults.diluent}mL</span>を混ぜて投与`;
                     } else {
                         description = "計算できませんでした";
                     }
                 } else if (row[3] === 'SFM3') {
-                    let sfm3Results = calculateDosageForSFM3(weight);
+                    let sfm3Results = await calculateDosageForSFM3(weight);
                     if (Array.isArray(sfm3Results)) {
                         description = sfm3Results.join(', ');
                     } else {
@@ -104,7 +96,7 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                     }
                     isSFM3 = true;
                 } else if (row[3] === 'SFM4') {
-                    let sfm4Results = calculateDosageForSFM4(weight);
+                    let sfm4Results = await calculateDosageForSFM4(weight);
                     description = `1バイアルを<span style="color: red;">5mL</span>で希釈。その<span style="color: red;">希釈液${sfm4Results.medication}mL</span>と<span style="color: red;">生食${sfm4Results.diluent}mL</span>を混ぜて全量投与`;
                     return {
                         drugName: row[0],
@@ -119,18 +111,18 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                     let diluentVolume = parseFloat(row[10]);
                     description = `<span style="color: red;">注射用水${diluentVolume}mL</span>に混ぜて、<span style="color: red;">${volume} mL</span>投与`;
                 } else if (row[3] === 'SFM6') {
-                    let sfm6Results = calculateDosageForSFM6(weight);
+                    let sfm6Results = await calculateDosageForSFM6(weight);
                     description = `1バイアルを<span style="color: red;">5mLで希釈</span>。その<span style="color: red;">希釈液${sfm6Results.medication}mL</span>と<span style="color: red;">生食${sfm6Results.diluent}mL</span>を混ぜて全量投与`;
                     return {
                         drugName: row[0],
-                        dosage: `${dosage} mg` , // SFM6の場合に単位を追加
+                        dosage: `${dosage} mg`, // SFM6の場合に単位を追加
                         description: description,
                         memo: row[14] || '',
                         imageUrl: row[15] || '',
                         isSFM3: false
                     };
                 } else if (row[3] === 'SFM7') {
-                    let sfm7Results = calculateDosageForSFM7(weight);
+                    let sfm7Results = await calculateDosageForSFM7(weight);
                     description = `<span style="color: red;">原液${sfm7Results.initialDose}mL</span>を投与。その後、<span style="color: red;">${sfm7Results.continuousDose}mL/hr</span>で持続投与。以降、<span style="color: red;">${sfm7Results.maxDose}mL/hr</span>まで増量可能`;
                     return {
                         drugName: row[0],
@@ -140,8 +132,8 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                         imageUrl: row[15] || '',
                         isSFM3: false
                     };
-                     } else if (row[3] === 'SFM8') {
-                    let sfm8Results = calculateDosageForSFM8(weight, row);
+                } else if (row[3] === 'SFM8') {
+                    let sfm8Results = await calculateDosageForSFM8(weight, row);
                     description = `バイアル1 mLと生食9 mLを混ぜたあと、<span style="color: red;">${sfm8Results.finalVolume} mL</span>を静脈投与`;
                     return {
                         drugName: row[0],
@@ -151,8 +143,8 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                         imageUrl: row[15] || '',
                         isSFM3: false
                     };
-                      } else if (row[3] === 'SFM9') {
-                    let sfm9Results = calculateDosageForSFM9(weight, row);
+                } else if (row[3] === 'SFM9') {
+                    let sfm9Results = await calculateDosageForSFM9(weight, row);
                     description = `<span style="color: red;">原液まま${sfm9Results.finalVolume} mL</span>を静脈投与`;
                     return {
                         drugName: row[0],
@@ -162,8 +154,8 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                         imageUrl: row[15] || '',
                         isSFM3: false
                     };
-                   } else if (row[3] === 'SFM10') {
-                    let sfm10Results = calculateDosageForSFM10(weight, row);
+                } else if (row[3] === 'SFM10') {
+                    let sfm10Results = await calculateDosageForSFM10(weight, row);
                     description = `原液まま<span style="color: red;">${sfm10Results.medication} mL</span>を静脈投与`;
                     return {
                         drugName: row[0],
