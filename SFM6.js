@@ -1,4 +1,6 @@
 // SFM6計算関数
+import { roundToSigFigs } from './calculate.js';
+
 export async function calculateDosageForSFM6(weight) {
     const spreadsheetId = '1RoySfR7lXoxhfXsIcVLWHSTebN5dVnjPpYv-m0EQZuM';  // スプレッドシートID
     const range = 'Sheet1!A2:Z1000'; // 適切なシート名と範囲を指定してください
