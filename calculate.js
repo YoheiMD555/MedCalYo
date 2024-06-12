@@ -107,7 +107,7 @@ export async function calculateDosage(diseaseType, weight, age, data) {
                     description = `原液まま<span style="color: red;">${sfm10Results.medication} mL</span>を静脈投与`;
                     return {
                         drugName: row[0],
-                        dosage: `${sfm10Results.dosageInMicrograms} μg`, // SFM10の場合に単位を追加
+                        dosage: `${sfm10Results.medication} μg`, // SFM10の場合に単位を追加
                         description: description,
                         memo: row[14] || '',
                         imageUrl: row[15] || '',
