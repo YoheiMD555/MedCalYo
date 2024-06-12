@@ -31,7 +31,6 @@ export async function fetchSheetData(sheetId, range) {
     }
 }
 
-
 export function calculateAgeDependentDosage(age) {
     // 年齢に基づいて用量を決定
     if (age < 1) {
