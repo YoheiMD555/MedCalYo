@@ -1,5 +1,6 @@
 // SFM2計算関数
-// SFM2.js
+import { roundToSigFigs } from './calculate.js';
+
 async function calculateDosageForSFM2(weight) {
     const spreadsheetId = '1w9sE_mYE1JkELdV4tQdWIXLQh8N75_3yhBZFeBdsoNQ';
     const range = 'Sheet1!A2:Z1000'; // 適切なシート名と範囲を指定してください
