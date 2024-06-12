@@ -15,9 +15,9 @@ export async function calculateDosageForSFM7(weight) {
         }
         const dosageData = data.values;
 
-        let initialDose = parseFloat(dosageData[0][0]) * weight;
-        let continuousDose = parseFloat(dosageData[0][1]) * weight;
-        let maxDose = parseFloat(dosageData[0][2]) * weight;
+        let initialDose = parseFloat(dosageData[1][0]) * weight;
+        let continuousDose = parseFloat(dosageData[1][1]) * weight;
+        let maxDose = parseFloat(dosageData[1][2]) * weight;
 
         return {
             initialDose: initialDose.toFixed(1),
