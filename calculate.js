@@ -14,6 +14,12 @@ function roundToSigFigs(num, sigFigs) {
     return Math.round(num * mult) / mult;
 }
 
+export function roundToSigFigs(num, sigFigs) {
+    if (num === 0) return 0;
+    const mult = Math.pow(10, sigFigs - Math.floor(Math.log10(Math.abs(num))) - 1);
+    return Math.round(num * mult) / mult;
+}
+
 function getDosage(row, weight, age) {
     if (row[1] === 'weight') {
         return roundToSigFigs(row[7] * weight, 3); // Adjusting to 3 significant figures
