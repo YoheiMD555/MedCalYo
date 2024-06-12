@@ -1,23 +1,37 @@
 // SFM6計算関数
-export function calculateDosageForSFM6(weight) {
-    const sheetId = '1RoySfR7lXoxhfXsIcVLWHSTebN5dVnjPpYv-m0EQZuM';  // スプレッドシートID
-    const dosageSheet = SpreadsheetApp.openById(sheetId).getSheets()[0];
-    const dosageData = dosageSheet.getDataRange().getValues();
+export async function calculateDosageForSFM6(weight) {
+    const spreadsheetId = '1RoySfR7lXoxhfXsIcVLWHSTebN5dVnjPpYv-m0EQZuM';  // スプレッドシートID
+    const range = 'Sheet1!A1:Z1000'; // 適切なシート名と範囲を指定してください
+    const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
 
-    // Extract the weights into a separate array for binary search
-    const weights = dosageData.slice(1).map(row => parseFloat(row[0])); // Skip header row
-    const index = binarySearchClosest(weights, weight);
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
 
-    const result = {};
-    if (index !== -1) {
-        result.medication = parseFloat(dosageData[index + 1][1]).toFixed(1);  // +1 to account for header row
-        result.diluent = parseFloat(dosageData[index + 1][2]).toFixed(1);
-    } else {
-        result.medication = undefined;
-        result.diluent = undefined;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const dosageData = data.values;
+
+        // Extract the weights into a separate array for binary search
+        const weights = dosageData.slice(1).map(row => parseFloat(row[0])); // Skip header row
+        const index = binarySearchClosest(weights, weight);
+
+        const result = {};
+        if (index !== -1) {
+            result.medication = parseFloat(dosageData[index + 1][1]).toFixed(1);  // +1 to account for header row
+            result.diluent = parseFloat(dosageData[index + 1][2]).toFixed(1);
+        } else {
+            result.medication = undefined;
+            result.diluent = undefined;
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return {
+            medication: undefined,
+            diluent: undefined
+        };
     }
-
-    return result;
 }
 
 // Binary search to find the index of the closest weight
@@ -49,7 +63,7 @@ function binarySearchClosest(arr, target) {
 }
 
 // テスト関数
-export function testCalculateDosageForSFM6() {
+export async function testCalculateDosageForSFM6() {
     const testCases = [
         { weight: 5, expectedMedication: "2.0", expectedDiluent: "8.0" }, // 例: 正常系テストケース
         { weight: 10, expectedMedication: "4.0", expectedDiluent: "6.0" }, // 例: 正常系テストケース
@@ -58,13 +72,13 @@ export function testCalculateDosageForSFM6() {
         // 境界ケースや異常ケースも追加可能
     ];
 
-    testCases.forEach(testCase => {
-        const result = calculateDosageForSFM6(testCase.weight);
-        Logger.log(`体重: ${testCase.weight} kg -> 薬剤: ${result.medication} mL, 生食: ${result.diluent} mL`);
+    for (const testCase of testCases) {
+        const result = await calculateDosageForSFM6(testCase.weight);
+        console.log(`体重: ${testCase.weight} kg -> 薬剤: ${result.medication} mL, 生食: ${result.diluent} mL`);
         if (result.medication !== testCase.expectedMedication || result.diluent !== testCase.expectedDiluent) {
-            Logger.log(`エラー: 体重 ${testCase.weight}kg で期待される薬剤量 ${testCase.expectedMedication}、生食量 ${testCase.expectedDiluent} ではなく、計算された薬剤量: ${result.medication}、生食量: ${result.diluent}`);
+            console.log(`エラー: 体重 ${testCase.weight}kg で期待される薬剤量 ${testCase.expectedMedication}、生食量 ${testCase.expectedDiluent} ではなく、計算された薬剤量: ${result.medication}、生食量: ${result.diluent}`);
         } else {
-            Logger.log(`成功: 体重 ${testCase.weight}kg で期待される薬剤量 ${testCase.expectedMedication}、生食量 ${testCase.expectedDiluent} が正しく計算されました。`);
+            console.log(`成功: 体重 ${testCase.weight}kg で期待される薬剤量 ${testCase.expectedMedication}、生食量 ${testCase.expectedDiluent} が正しく計算されました。`);
         }
-    });
+    }
 }
