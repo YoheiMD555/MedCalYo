@@ -2,7 +2,7 @@
 // SFM2.js
 async function calculateDosageForSFM2(weight) {
     const spreadsheetId = '1w9sE_mYE1JkELdV4tQdWIXLQh8N75_3yhBZFeBdsoNQ';
-    const range = 'Sheet1!A1:Z1000'; // 適切なシート名と範囲を指定してください
+    const range = 'Sheet1!A2:Z1000'; // 適切なシート名と範囲を指定してください
     const apiKey = 'AIzaSyCu9ekb7iQWvmGi3TpOndM_ry7GjAFn9no'; // Google Sheets APIキーをここに入力
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
